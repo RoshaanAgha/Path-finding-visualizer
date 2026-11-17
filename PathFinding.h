@@ -66,10 +66,44 @@ public:
                col >= 0 && col < COLS;
     }
 
-int main(void){
-    Grid grid;
-    int choice = 0;
-do{
-    cout << "     PATHFINDING VISUALIZER" << endl;
-    cout << "1. Display Grid" << endl;
-    cout << "0. Exit" << endl;
+    void display(const int path[], int pathSize) const
+    {
+        cout << endl;
+
+        for (int i = 0; i < ROWS; i++)
+        {
+            for (int j = 0; j < COLS; j++)
+            {
+                int position = i * COLS + j;
+                bool isPath = false;
+
+                if (path != NULL)
+                {
+                    for (int k = 0; k < pathSize; k++)
+                    {
+                        if (path[k] == position)
+                        {
+                            isPath = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isStart(i, j))
+                    cout << "S ";
+                else if (isEnd(i, j))
+                    cout << "E ";
+                else if (nodes[i][j].isWall)
+                    cout << "# ";
+                else if (isPath)
+                    cout << "* ";
+                else if (nodes[i][j].isVisited)
+                    cout << ". ";
+                else
+                    cout << "- ";
+            }
+
+            cout << endl;
+        }
+    }
+};
