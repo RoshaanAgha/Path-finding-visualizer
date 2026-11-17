@@ -8,6 +8,8 @@ using namespace std;
 const int ROWS = 10;
 const int COLS = 10;
 const int SIZE = ROWS * COLS;
+const int MAX_BUFFER = SIZE * 4;
+const int INF = 999999;
 
 class Node
 {
@@ -17,6 +19,8 @@ public:
     bool isWall;
     bool isVisited;
     int distance;
+    int parentRow;
+    int parentCol;
 
     Node()
     {
@@ -25,6 +29,8 @@ public:
         isWall = false;
         isVisited = false;
         distance = INF;
+        parentRow = -1;
+        parentCol = -1;
     }
 };
 
@@ -54,3 +60,16 @@ public:
         }
     }
 
+    bool isValid(int row, int col) const
+    {
+        return row >= 0 && row < ROWS &&
+               col >= 0 && col < COLS;
+    }
+
+int main(void){
+    Grid grid;
+    int choice = 0;
+do{
+    cout << "     PATHFINDING VISUALIZER" << endl;
+    cout << "1. Display Grid" << endl;
+    cout << "0. Exit" << endl;
