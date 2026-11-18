@@ -1,4 +1,3 @@
-
 #ifndef PathFinding_H
 #define PathFinding_H
 
@@ -66,6 +65,103 @@ public:
                col >= 0 && col < COLS;
     }
 
+    bool isStart(int row, int col) const
+    {
+        return row == startRow && col == startCol;
+    }
+
+    bool isEnd(int row, int col) const
+    {
+        return row == endRow && col == endCol;
+    }
+
+    void setStartEnd(int sRow, int sCol, int eRow, int eCol)
+    {
+        if (!isValid(sRow, sCol) || !isValid(eRow, eCol))
+        {
+            cout << "Invalid coordinates! Must be within 0-" << ROWS - 1
+                 << " and 0-" << COLS - 1 << "." << endl;
+            return;
+        }
+
+        if (sRow == eRow && sCol == eCol)
+        {
+            cout << "Start and End positions cannot be the same cell!" << endl;
+            return;
+        }
+
+        if (nodes[sRow][sCol].isWall || nodes[eRow][eCol].isWall)
+        {
+            cout << "Cannot place Start or End on a wall! Remove the wall first." << endl;
+            return;
+        }
+
+        startRow = sRow;
+        startCol = sCol;
+        endRow = eRow;
+        endCol = eCol;
+
+        resetSearch();
+        cout << "Start set to (" << startRow << ", " << startCol
+             << ") and End set to (" << endRow << ", " << endCol << ")." << endl;
+    }
+
+    void addWall(int row, int col)
+    {
+        if (isValid(row, col) && !isStart(row, col) && !isEnd(row, col))
+        {
+            nodes[row][col].isWall = true;
+            resetSearch();
+            cout << "Wall added!" << endl;
+        }
+        else
+        {
+            cout << "Invalid position!" << endl;
+        }
+    }
+
+    void removeWall(int row, int col)
+    {
+        if (isValid(row, col))
+        {
+            nodes[row][col].isWall = false;
+            resetSearch();
+            cout << "Wall removed!" << endl;
+        }
+        else
+        {
+            cout << "Invalid position!" << endl;
+        }
+    }
+
+    void clearWalls()
+    {
+        for (int i = 0; i < ROWS; i++)
+        {
+            for (int j = 0; j < COLS; j++)
+            {
+                nodes[i][j].isWall = false;
+            }
+        }
+
+        resetSearch();
+        cout << "All walls cleared!" << endl;
+    }
+
+    void resetSearch()
+    {
+        for (int i = 0; i < ROWS; i++)
+        {
+            for (int j = 0; j < COLS; j++)
+            {
+                nodes[i][j].isVisited = false;
+                nodes[i][j].distance = INF;
+                nodes[i][j].parentRow = -1;
+                nodes[i][j].parentCol = -1;
+            }
+        }
+    }
+
     void display(const int path[], int pathSize) const
     {
         cout << endl;
@@ -108,6 +204,7 @@ public:
     }
 };
 
+#endif
 class Queue
 {
 private:
