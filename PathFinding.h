@@ -205,3 +205,39 @@ public:
 };
 
 #endif
+class Queue
+{
+private:
+    int arr[SIZE];
+    int front;
+    int rear;
+
+public:
+    Queue()
+    {
+        front = 0;
+        rear = -1;
+    }
+
+    bool isEmpty() const { return front > rear; }
+
+    void enqueue(int value)
+    {
+        if (rear < SIZE - 1)
+        {
+            rear++;
+            arr[rear] = value;
+        }
+    }
+
+    int dequeue()
+    {
+        if (!isEmpty())
+        {
+            int value = arr[front];
+            front++;
+            return value;
+        }
+        return -1;
+    }
+};
