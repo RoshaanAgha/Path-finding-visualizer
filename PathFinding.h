@@ -9,6 +9,8 @@ const int COLS = 10;
 const int SIZE = ROWS * COLS;
 const int MAX_BUFFER = SIZE * 4;
 const int INF = 999999;
+const int MIN_COST = 1;
+const int MAX_COST = 9;
 
 class Node
 {
@@ -18,6 +20,7 @@ public:
     bool isWall;
     bool isVisited;
     int distance;
+    int cost;
     int parentRow;
     int parentCol;
 
@@ -28,6 +31,7 @@ public:
         isWall = false;
         isVisited = false;
         distance = INF;
+        cost = MIN_COST;
         parentRow = -1;
         parentCol = -1;
     }
@@ -111,6 +115,7 @@ public:
         if (isValid(row, col) && !isStart(row, col) && !isEnd(row, col))
         {
             nodes[row][col].isWall = true;
+            nodes[row][col].cost = MIN_COST;
             resetSearch();
             cout << "Wall added!" << endl;
         }
@@ -146,6 +151,46 @@ public:
 
         resetSearch();
         cout << "All walls cleared!" << endl;
+    }
+
+    void setCost(int row, int col, int cost)
+    {
+        if (!isValid(row, col))
+        {
+            cout << "Invalid position!" << endl;
+            return;
+        }
+
+        if (nodes[row][col].isWall)
+        {
+            cout << "Cannot set terrain on a wall! Remove the wall first." << endl;
+            return;
+        }
+
+        if (cost < MIN_COST || cost > MAX_COST)
+        {
+            cout << "Invalid cost! Must be between " << MIN_COST
+                 << " and " << MAX_COST << "." << endl;
+            return;
+        }
+
+        nodes[row][col].cost = cost;
+        resetSearch();
+        cout << "Cell (" << row << ", " << col << ") now costs " << cost << " to enter." << endl;
+    }
+
+    void clearTerrain()
+    {
+        for (int i = 0; i < ROWS; i++)
+        {
+            for (int j = 0; j < COLS; j++)
+            {
+                nodes[i][j].cost = MIN_COST;
+            }
+        }
+
+        resetSearch();
+        cout << "All terrain reset to normal!" << endl;
     }
 
     void resetSearch()
@@ -195,6 +240,8 @@ public:
                     cout << "* ";
                 else if (nodes[i][j].isVisited)
                     cout << ". ";
+                else if (nodes[i][j].cost > MIN_COST)
+                    cout << nodes[i][j].cost << " ";
                 else
                     cout << "- ";
             }
