@@ -241,3 +241,41 @@ public:
         return -1;
     }
 };
+class Stack
+{
+private:
+    int arr[MAX_BUFFER];
+    int top;
+
+public:
+    Stack()
+    {
+        top = -1;
+    }
+
+    bool isEmpty() const
+    {
+        return top == -1;
+    }
+
+    void push(int value)
+    {
+        if (top < MAX_BUFFER - 1)
+        {
+            top++;
+            arr[top] = value;
+        }
+    }
+
+    int pop()
+    {
+        if (!isEmpty())
+        {
+            int value = arr[top];
+            top--;
+            return value;
+        }
+
+        return -1;
+    }
+};
