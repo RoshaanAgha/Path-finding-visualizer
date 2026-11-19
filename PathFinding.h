@@ -204,7 +204,6 @@ public:
     }
 };
 
-#endif
 class Queue
 {
 private:
@@ -241,6 +240,7 @@ public:
         return -1;
     }
 };
+
 class Stack
 {
 private:
@@ -279,3 +279,121 @@ public:
         return -1;
     }
 };
+
+class PriorityQueue
+{
+private:
+    int heap[MAX_BUFFER];
+    int priority[MAX_BUFFER];
+    int size;
+
+    void swapValues(int i, int j)
+    {
+        int temp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = temp;
+
+        temp = priority[i];
+        priority[i] = priority[j];
+        priority[j] = temp;
+    }
+
+    void heapifyUp(int index)
+    {
+        while (index > 0)
+        {
+            int parent = (index - 1) / 2;
+
+            if (priority[index] < priority[parent])
+            {
+                swapValues(index, parent);
+                index = parent;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    void heapifyDown(int index)
+    {
+        while (true)
+        {
+            int left = 2 * index + 1;
+            int right = 2 * index + 2;
+            int smallest = index;
+
+            if (left < size && priority[left] < priority[smallest])
+            {
+                smallest = left;
+            }
+
+            if (right < size && priority[right] < priority[smallest])
+            {
+                smallest = right;
+            }
+
+            if (smallest != index)
+            {
+                swapValues(index, smallest);
+                index = smallest;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+public:
+    PriorityQueue()
+    {
+        size = 0;
+    }
+
+    bool isEmpty() const
+    {
+        return size == 0;
+    }
+
+    void enqueue(int value, int cost)
+    {
+        if (size < MAX_BUFFER)
+        {
+            heap[size] = value;
+            priority[size] = cost;
+
+            heapifyUp(size);
+            size++;
+        }
+    }
+
+    int dequeue()
+    {
+        if (isEmpty())
+            return -1;
+
+        int value = heap[0];
+        size--;
+
+        if (size > 0)
+        {
+            heap[0] = heap[size];
+            priority[0] = priority[size];
+            heapifyDown(0);
+        }
+
+        return value;
+    }
+
+    int getPriority() const
+    {
+        if (!isEmpty())
+            return priority[0];
+
+        return INF;
+    }
+};
+
+#endif
