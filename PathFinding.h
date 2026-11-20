@@ -443,4 +443,144 @@ public:
     }
 };
 
+class SearchResult
+{
+public:
+    bool found;
+    int visitedCount;
+    int pathLength;
+    int pathCost;
+    int path[SIZE];
+    int pathSize;
+
+    SearchResult()
+    {
+        found = false;
+        visitedCount = 0;
+        pathLength = 0;
+        pathCost = 0;
+        pathSize = 0;
+    }
+};
+
+int dr[4] = {-1, 1, 0, 0};
+int dc[4] = {0, 0, -1, 1};
+
+int absoluteValue(int number)
+{
+    return (number < 0) ? -number : number;
+}
+
+bool validNeighbor(const Grid& grid, int row, int col)
+{
+    return grid.isValid(row, col) && !grid.nodes[row][col].isWall;
+}
+
+void prepareGrid(Grid& grid)
+{
+    grid.resetSearch();
+    grid.nodes[grid.startRow][grid.startCol].distance = 0;
+}
+
+SearchResult getResult(const Grid& grid, bool found)
+{
+    SearchResult result;
+    result.found = found;
+
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            if (grid.nodes[i][j].isVisited)
+            {
+                result.visitedCount++;
+            }
+        }
+    }
+
+    if (found)
+    {
+        int row = grid.endRow;
+        int col = grid.endCol;
+
+        while (row != -1 && col != -1 && result.pathSize < SIZE)
+        {
+            result.path[result.pathSize] = row * COLS + col;
+            result.pathSize++;
+
+            int newRow = grid.nodes[row][col].parentRow;
+            int newCol = grid.nodes[row][col].parentCol;
+
+            row = newRow;
+            col = newCol;
+        }
+
+        for (int i = 0; i < result.pathSize / 2; i++)
+        {
+            int temp = result.path[i];
+            result.path[i] = result.path[result.pathSize - 1 - i];
+            result.path[result.pathSize - 1 - i] = temp;
+        }
+
+        result.pathLength = result.pathSize - 1;
+
+        for (int i = 1; i < result.pathSize; i++)
+        {
+            int r = result.path[i] / COLS;
+            int c = result.path[i] % COLS;
+            result.pathCost += grid.nodes[r][c].cost;
+        }
+    }
+
+    return result;
+}
+
+SearchResult BFS(Grid& grid)
+{
+    prepareGrid(grid);
+
+    Queue q;
+    int startIdx = grid.startRow * COLS + grid.startCol;
+    q.enqueue(startIdx);
+
+    bool found = false;
+
+    while (!q.isEmpty())
+    {
+        int current = q.dequeue();
+        int row = current / COLS;
+        int col = current % COLS;
+
+        if (grid.nodes[row][col].isVisited)
+            continue;
+
+        grid.nodes[row][col].isVisited = true;
+
+        if (grid.isEnd(row, col))
+        {
+            found = true;
+            break;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            int newRow = row + dr[i];
+            int newCol = col + dc[i];
+
+            if (validNeighbor(grid, newRow, newCol) &&
+                grid.nodes[newRow][newCol].distance == INF)
+            {
+                grid.nodes[newRow][newCol].distance = grid.nodes[row][col].distance + 1;
+
+                grid.nodes[newRow][newCol].parentRow = row;
+                grid.nodes[newRow][newCol].parentCol = col;
+
+                q.enqueue(newRow * COLS + newCol);
+            }
+        }
+    }
+
+    return getResult(grid, found);
+}
+
 #endif
