@@ -443,4 +443,97 @@ public:
     }
 };
 
+class SearchResult
+{
+public:
+    bool found;
+    int visitedCount;
+    int pathLength;   // number of steps
+    int pathCost;     // NEW: total terrain cost of the path
+    int path[SIZE];
+    int pathSize;
+
+    SearchResult()
+    {
+        found = false;
+        visitedCount = 0;
+        pathLength = 0;
+        pathCost = 0;
+        pathSize = 0;
+    }
+};
+
+int dr[4] = {-1, 1, 0, 0};
+int dc[4] = {0, 0, -1, 1};
+
+int absoluteValue(int number)
+{
+    return (number < 0) ? -number : number;
+}
+
+bool validNeighbor(const Grid& grid, int row, int col)
+{
+    return grid.isValid(row, col) && !grid.nodes[row][col].isWall;
+}
+
+void prepareGrid(Grid& grid)
+{
+    grid.resetSearch();
+    grid.nodes[grid.startRow][grid.startCol].distance = 0;
+}
+
+SearchResult getResult(const Grid& grid, bool found)
+{
+    SearchResult result;
+    result.found = found;
+
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            if (grid.nodes[i][j].isVisited)
+            {
+                result.visitedCount++;
+            }
+        }
+    }
+
+    if (found)
+    {
+        int row = grid.endRow;
+        int col = grid.endCol;
+
+        while (row != -1 && col != -1 && result.pathSize < SIZE)
+        {
+            result.path[result.pathSize] = row * COLS + col;
+            result.pathSize++;
+
+            int newRow = grid.nodes[row][col].parentRow;
+            int newCol = grid.nodes[row][col].parentCol;
+
+            row = newRow;
+            col = newCol;
+        }
+
+        for (int i = 0; i < result.pathSize / 2; i++)
+        {
+            int temp = result.path[i];
+            result.path[i] = result.path[result.pathSize - 1 - i];
+            result.path[result.pathSize - 1 - i] = temp;
+        }
+
+        result.pathLength = result.pathSize - 1;
+
+        // NEW: total cost = cost of entering every cell on the path except the start
+        for (int i = 1; i < result.pathSize; i++)
+        {
+            int r = result.path[i] / COLS;
+            int c = result.path[i] % COLS;
+            result.pathCost += grid.nodes[r][c].cost;
+        }
+    }
+
+    return result;
+}
+
 #endif
