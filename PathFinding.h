@@ -535,5 +535,53 @@ SearchResult getResult(const Grid& grid, bool found)
 
     return result;
 }
+SearchResult BFS(Grid& grid)
+{
+    prepareGrid(grid);
+
+    Queue q;
+    int startIdx = grid.startRow * COLS + grid.startCol;
+    q.enqueue(startIdx);
+
+    bool found = false;
+
+    while (!q.isEmpty())
+    {
+        int current = q.dequeue();
+        int row = current / COLS;
+        int col = current % COLS;
+
+        if (grid.nodes[row][col].isVisited)
+            continue;
+
+        grid.nodes[row][col].isVisited = true;
+
+        if (grid.isEnd(row, col))
+        {
+            found = true;
+            break;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            int newRow = row + dr[i];
+            int newCol = col + dc[i];
+
+            if (validNeighbor(grid, newRow, newCol) &&
+                grid.nodes[newRow][newCol].distance == INF)
+            {
+                grid.nodes[newRow][newCol].distance =
+                    grid.nodes[row][col].distance + 1;
+
+                grid.nodes[newRow][newCol].parentRow = row;
+                grid.nodes[newRow][newCol].parentCol = col;
+
+                q.enqueue(newRow * COLS + newCol);
+            }
+        }
+    }
+
+    return getResult(grid, found);
+}
 
 #endif
