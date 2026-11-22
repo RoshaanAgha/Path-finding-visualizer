@@ -632,4 +632,61 @@ SearchResult DFS(Grid& grid)
     return getResult(grid, found);
 }
 
+SearchResult Dijkstra(Grid& grid)
+{
+    prepareGrid(grid);
+
+    PriorityQueue pq;
+    int startIdx = grid.startRow * COLS + grid.startCol;
+    pq.enqueue(startIdx, 0);
+
+    bool found = false;
+
+    while (!pq.isEmpty())
+    {
+        int currentDistance = pq.getPriority();
+        int current = pq.dequeue();
+
+        int row = current / COLS;
+        int col = current % COLS;
+
+        if (currentDistance != grid.nodes[row][col].distance)
+            continue;
+
+        if (grid.nodes[row][col].isVisited)
+            continue;
+
+        grid.nodes[row][col].isVisited = true;
+
+        if (grid.isEnd(row, col))
+        {
+            found = true;
+            break;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            int newRow = row + dr[i];
+            int newCol = col + dc[i];
+
+            if (validNeighbor(grid, newRow, newCol))
+            {
+                // CHANGED: was currentDistance + 1
+                int newDistance = currentDistance + grid.nodes[newRow][newCol].cost;
+
+                if (newDistance < grid.nodes[newRow][newCol].distance)
+                {
+                    grid.nodes[newRow][newCol].distance = newDistance;
+                    grid.nodes[newRow][newCol].parentRow = row;
+                    grid.nodes[newRow][newCol].parentCol = col;
+
+                    pq.enqueue(newRow * COLS + newCol, newDistance);
+                }
+            }
+        }
+    }
+
+    return getResult(grid, found);
+}
+
 #endif
